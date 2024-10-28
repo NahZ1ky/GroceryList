@@ -1,6 +1,7 @@
 package com.nahziky.grocerylist.ui.state
 
-data class CategoryUiState(
-    val itemList: List<String> = listOf(),
-    val categoryChecked: Boolean
+data class Category(
+    val categoryName: String = "",
+    val products: List<Product> = emptyList(),
+    val categoryChecked: Boolean = false
 )
