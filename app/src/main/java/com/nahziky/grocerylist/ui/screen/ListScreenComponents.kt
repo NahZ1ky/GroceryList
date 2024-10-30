@@ -1,7 +1,7 @@
 package com.nahziky.grocerylist.ui.screen
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TriStateCheckbox
@@ -26,18 +27,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.room.util.copy
 import com.nahziky.grocerylist.ui.CategoryListViewModel
+import com.nahziky.grocerylist.ui.CategoryViewModel
+import com.nahziky.grocerylist.ui.ItemViewModel
 import com.nahziky.grocerylist.ui.state.Category
 import com.nahziky.grocerylist.ui.state.Product
 import com.nahziky.grocerylist.ui.theme.Typography
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import com.nahziky.grocerylist.ui.CategoryViewModel
-import com.nahziky.grocerylist.ui.ItemViewModel
 
 @Composable
-fun CategoryList(
+fun ListScreen(
     categoryListViewModel: CategoryListViewModel = CategoryListViewModel()
 ) {
     val uiState by categoryListViewModel.uiState.collectAsState()
@@ -46,16 +44,12 @@ fun CategoryList(
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         items(uiState.categoryList) { categoryViewModel ->
-            val categoryState by categoryViewModel.uiState.collectAsState()
-
             Category(
-                categoryViewModel = categoryState,
-                modifier = Modifier.padding(4.dp)
+                categoryViewModel = categoryViewModel,
             )
+            HorizontalDivider(thickness = 12.dp)
         }
     }
-
-
 }
 
 
@@ -80,44 +74,48 @@ fun Category(
         childCheckedStates.none { it } -> ToggleableState.Off
         else -> ToggleableState.Indeterminate
     }
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(4.dp)
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(8.dp)
+
+    Box {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(4.dp)
         ) {
-            TriStateCheckbox(
-                state = parentState,
-                onClick = {
-                    val newState = parentState != ToggleableState.On
-                    childCheckedStates.fill(newState)
-                    uiState.products.forEachIndexed { index, product ->
-                        categoryViewModel.updateProductChecked(index, newState)
-                    }
-                },
-            )
-            Text(
-                text = uiState.categoryName,
-                style = Typography.headlineSmall,
-                fontWeight = FontWeight.Bold
-            )
-        }
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            items(uiState.products) { product ->
-                val index = uiState.products.indexOf(product)
-                ProductCard(
-                    product = product,
-                    onCheckedChange = {
-                        childCheckedStates[index] = true
-                        categoryViewModel.updateProductChecked(index, childCheckedStates[index])
-                    }
+            Row(
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(8.dp)
+            ) {
+                TriStateCheckbox(
+                    state = parentState,
+                    onClick = {
+                        val newState = parentState != ToggleableState.On // TODO: change the onClick behavior (optional)
+                        childCheckedStates.fill(newState)
+                        uiState.products.forEachIndexed { index, _ ->
+                            categoryViewModel.updateProductChecked(index, newState)
+                        }
+                    },
                 )
+                Text(
+                    text = uiState.categoryName,
+                    style = Typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier.weight(1f) // TODO: probably not the best place to place this
+            ) {
+                items(uiState.products) { product ->
+                    val index = uiState.products.indexOf(product)
+                    ProductCard(
+                        product = uiState.products[index].uiState.collectAsState().value,
+                        onCheckedChange = {
+                            childCheckedStates[index] = true
+                            categoryViewModel.updateProductChecked(index, childCheckedStates[index])
+                        }
+                    )
+                }
             }
         }
     }
@@ -139,7 +137,7 @@ fun ProductCard(
         Row(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(4.dp)
+            modifier = Modifier.padding(12.dp)
         ) {
             Checkbox(
                 checked = product.isChecked,
@@ -149,7 +147,7 @@ fun ProductCard(
             )
             Text(
                 text = product.productName,
-                fontSize = 18.sp,
+                fontSize = 22.sp,
                 style = Typography.bodyMedium // or is it?
             )
         }
@@ -161,7 +159,7 @@ fun ProductCard(
 
 
 
-// @Preview(showBackground = true)
+@Preview(showBackground = true)
 @Composable
 fun PreviewProductCard() {
     val sampleProduct = Product(
@@ -172,7 +170,7 @@ fun PreviewProductCard() {
     ProductCard(product = sampleProduct)
 }
 
-// @Preview(showBackground = true)
+@Preview(showBackground = true)
 @Composable
 fun PreviewCategory() {
     val sampleProducts = listOf(
@@ -202,6 +200,12 @@ fun PreviewCategoryList() {
         Product(productName = "Bread", isChecked = false)
     )
 
+    val sampleProducts2 = listOf(
+        Product(productName = "pear", isChecked = true),
+        Product(productName = "apple", isChecked = false),
+        Product(productName = "grape", isChecked = false)
+    )
+
     // Create sample CategoryViewModels with the products
     val sampleCategories = listOf(
         CategoryViewModel().apply {
@@ -212,8 +216,8 @@ fun PreviewCategoryList() {
         },
         CategoryViewModel().apply {
             _state.value = Category(
-                categoryName = "Household Items",
-                products = sampleProducts.map { ItemViewModel().apply { updateProductName(it.productName) } }
+                categoryName = "Fruit",
+                products = sampleProducts2.map { ItemViewModel().apply { updateProductName(it.productName) } }
             )
         }
     )
@@ -224,5 +228,5 @@ fun PreviewCategoryList() {
     }
 
     // Call the composable with the mock view model
-    CategoryList(categoryListViewModel = mockCategoryListViewModel)
+    ListScreen(categoryListViewModel = mockCategoryListViewModel)
 }

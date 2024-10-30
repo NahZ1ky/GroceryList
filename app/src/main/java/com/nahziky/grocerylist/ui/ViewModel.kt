@@ -8,9 +8,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-open class ItemViewModel {
+open class ItemViewModel { // TODO: remember to remove open
     private val _state: MutableStateFlow<Product> = MutableStateFlow(Product())
-    open val uiState: StateFlow<Product> = _state.asStateFlow()
+    open val uiState: StateFlow<Product> = _state.asStateFlow() // TODO: remember to remove open
 
     // Product UiState modify
     fun updateProductName(name: String) {
@@ -35,9 +35,9 @@ open class ItemViewModel {
     }
 }
 
-open class CategoryViewModel {
-    val _state: MutableStateFlow<Category> = MutableStateFlow(Category())
-    open val uiState: StateFlow<Category> = _state.asStateFlow()
+open class CategoryViewModel { // TODO: remember to remove open
+    val _state: MutableStateFlow<Category> = MutableStateFlow(Category()) // TODO: remember to add private
+    open val uiState: StateFlow<Category> = _state.asStateFlow() // TODO: remember to remove open
 
     // Category UiState Modify
     fun updateCategoryName(name: String) {
