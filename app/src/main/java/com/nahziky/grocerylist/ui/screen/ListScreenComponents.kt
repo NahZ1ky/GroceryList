@@ -104,7 +104,7 @@ fun Category(
             }
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
-                modifier = Modifier.weight(1f) // TODO: probably not the best place to place this
+                modifier = Modifier.weight(20f) // TODO: probably not the best place to place this
             ) {
                 items(uiState.products) { product ->
                     val index = uiState.products.indexOf(product)

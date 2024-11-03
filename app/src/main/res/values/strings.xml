@@ -1,5 +1,16 @@
 <resources>
     <string name="app_name">Grocery List</string>
+
+
     <string name="add_product">Add Item</string>
-    <string name="archived_products">Checked items</string>
+
+    bottom bar items:
+    <string name="grocery_list">Grocery List</string>
+    <string name="archived_list">In Cart</string>
+
+    add view prompt:
+    <string name="Category">Category</string>
+    <string name="product">Product</string>
+
+
 </resources>
