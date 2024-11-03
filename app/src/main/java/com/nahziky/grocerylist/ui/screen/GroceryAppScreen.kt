@@ -1,6 +1,7 @@
 package com.nahziky.grocerylist.ui.screen
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
@@ -8,9 +9,12 @@ import androidx.compose.material.BottomNavigationDefaults
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.FloatingActionButtonElevation
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -21,8 +25,11 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -61,6 +68,26 @@ fun GroceryApp(
         bottomBar = {
             BottomBar(
                 navController = navController
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = ,
+                containerColor = MaterialTheme.colorScheme.tertiary,
+                elevation = FloatingActionButtonDefaults.elevation(8.dp),
+                shape = MaterialTheme.shapes.medium,
+                modifier = Modifier.padding(16.dp),
+                interactionSource = remember { MutableInteractionSource() },
+                contentColor = MaterialTheme.colorScheme.onTertiary,
+                content = {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = R.string.add_product.toString()
+                    )
+                },
+                onClick = {
+                    navController.navigate(GroceryAppScreens.AddScreen.name)
+                }
             )
         }
     ) { innerPadding ->
@@ -124,4 +151,19 @@ fun BottomBar(
             onClick = { navController.navigate(GroceryAppScreens.ArchiveScreen.name) }
         )
     }
+}
+
+@Composable
+fun FloatingActionButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    shape: Shape = FloatingActionButtonDefaults.shape,
+    containerColor: androidx.compose.ui.graphics.Color = FloatingActionButtonDefaults.containerColor,
+    elevation: FloatingActionButtonElevation = FloatingActionButtonDefaults.elevation(),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+) {
+    Icon(
+        imageVector = Icons.Filled.Add,
+        contentDescription = R.string.add_product.toString()
+    )
 }

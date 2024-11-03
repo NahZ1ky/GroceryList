@@ -9,6 +9,7 @@
     <string name="archived_list">In Cart</string>
 
     add view prompt:
+    <string name="add_product_prompt">Add Item</string>
     <string name="Category">Category</string>
     <string name="product">Product</string>
 

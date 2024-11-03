@@ -32,7 +32,7 @@ import com.nahziky.grocerylist.ui.CategoryViewModel
 import com.nahziky.grocerylist.ui.ItemViewModel
 import com.nahziky.grocerylist.ui.state.Category
 import com.nahziky.grocerylist.ui.state.Product
-import com.nahziky.grocerylist.ui.theme.Typography
+import com.nahziky.grocerylist.ui.theme.*
 
 @Composable
 fun ListScreen(
@@ -75,46 +75,48 @@ fun Category(
         else -> ToggleableState.Indeterminate
     }
 
-    Box {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(4.dp)
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(8.dp)
+    MaterialTheme {
+        Box {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp)
             ) {
-                TriStateCheckbox(
-                    state = parentState,
-                    onClick = {
-                        val newState = parentState != ToggleableState.On // TODO: change the onClick behavior (optional)
-                        childCheckedStates.fill(newState)
-                        uiState.products.forEachIndexed { index, _ ->
-                            categoryViewModel.updateProductChecked(index, newState)
-                        }
-                    },
-                )
-                Text(
-                    text = uiState.categoryName,
-                    style = Typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-                modifier = Modifier.weight(20f) // TODO: probably not the best place to place this
-            ) {
-                items(uiState.products) { product ->
-                    val index = uiState.products.indexOf(product)
-                    ProductCard(
-                        product = uiState.products[index].uiState.collectAsState().value,
-                        onCheckedChange = {
-                            childCheckedStates[index] = true
-                            categoryViewModel.updateProductChecked(index, childCheckedStates[index])
-                        }
+                Row(
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(8.dp)
+                ) {
+                    TriStateCheckbox(
+                        state = parentState,
+                        onClick = {
+                            val newState = parentState != ToggleableState.On // TODO: change the onClick behavior (optional)
+                            childCheckedStates.fill(newState)
+                            uiState.products.forEachIndexed { index, _ ->
+                                categoryViewModel.updateProductChecked(index, newState)
+                            }
+                        },
                     )
+                    Text(
+                        text = uiState.categoryName,
+                        style = Typography.bodyMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    modifier = Modifier.weight(20f) // TODO: probably not the best place to place this
+                ) {
+                    items(uiState.products) { product ->
+                        val index = uiState.products.indexOf(product)
+                        ProductCard(
+                            product = uiState.products[index].uiState.collectAsState().value,
+                            onCheckedChange = {
+                                childCheckedStates[index] = true
+                                categoryViewModel.updateProductChecked(index, childCheckedStates[index])
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -143,7 +145,8 @@ fun ProductCard(
                 checked = product.isChecked,
                 onCheckedChange = onCheckedChange,
                 modifier = Modifier.padding(
-                    horizontal = 4.dp)
+                    horizontal = 4.dp
+                )
             )
             Text(
                 text = product.productName,
@@ -153,7 +156,6 @@ fun ProductCard(
         }
     }
 }
-
 
 
 
