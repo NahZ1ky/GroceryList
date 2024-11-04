@@ -172,63 +172,63 @@ fun PreviewProductCard() {
     ProductCard(product = sampleProduct)
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewCategory() {
-    val sampleProducts = listOf(
-        ItemViewModel().apply { updateProductName("Apples") },
-        ItemViewModel().apply { updateProductName("Bananas") },
-        ItemViewModel().apply { updateProductName("Carrots") }
-    )
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewCategory() {
+//    val sampleProducts = listOf(
+//        ItemViewModel().apply { updateProductName("Apples") },
+//        ItemViewModel().apply { updateProductName("Bananas") },
+//        ItemViewModel().apply { updateProductName("Carrots") }
+//    )
+//
+//    val categoryViewModel = CategoryViewModel().apply {
+//        state.value = Category(
+//            categoryName = "Fruits & Vegetables",
+//            products = sampleProducts
+//        )
+//    }
+//
+//
+//    Category(categoryViewModel = categoryViewModel)
+//}
 
-    val categoryViewModel = CategoryViewModel().apply {
-        val mockCategory = Category(
-            categoryName = "Fruits & Vegetables",
-            products = sampleProducts
-        )
-        _state.value = mockCategory
-    }
-
-    Category(categoryViewModel = categoryViewModel)
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewCategoryList() {
-    // Create sample products for the categories
-    val sampleProducts = listOf(
-        Product(productName = "Milk", isChecked = true),
-        Product(productName = "Eggs", isChecked = false),
-        Product(productName = "Bread", isChecked = false)
-    )
-
-    val sampleProducts2 = listOf(
-        Product(productName = "pear", isChecked = true),
-        Product(productName = "apple", isChecked = false),
-        Product(productName = "grape", isChecked = false)
-    )
-
-    // Create sample CategoryViewModels with the products
-    val sampleCategories = listOf(
-        CategoryViewModel().apply {
-            _state.value = Category(
-                categoryName = "Groceries",
-                products = sampleProducts.map { ItemViewModel().apply { updateProductName(it.productName) } }
-            )
-        },
-        CategoryViewModel().apply {
-            _state.value = Category(
-                categoryName = "Fruit",
-                products = sampleProducts2.map { ItemViewModel().apply { updateProductName(it.productName) } }
-            )
-        }
-    )
-
-    // Mock the view model for the category list
-    val mockCategoryListViewModel = CategoryListViewModel().apply {
-        updateCategoryList(sampleCategories)
-    }
-
-    // Call the composable with the mock view model
-    ListScreen(categoryListViewModel = mockCategoryListViewModel)
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewCategoryList() {
+//    // Create sample products for the categories
+//    val sampleProducts = listOf(
+//        Product(productName = "Milk", isChecked = true),
+//        Product(productName = "Eggs", isChecked = false),
+//        Product(productName = "Bread", isChecked = false)
+//    )
+//
+//    val sampleProducts2 = listOf(
+//        Product(productName = "pear", isChecked = true),
+//        Product(productName = "apple", isChecked = false),
+//        Product(productName = "grape", isChecked = false)
+//    )
+//
+//    // Create sample CategoryViewModels with the products
+//    val sampleCategories = listOf(
+//        CategoryViewModel().apply {
+//            state.value = Category(
+//                categoryName = "Groceries",
+//                products = sampleProducts.map { ItemViewModel().apply { updateProductName(it.productName) } }
+//            )
+//        },
+//        CategoryViewModel().apply {
+//            state.value = Category(
+//                categoryName = "Fruit",
+//                products = sampleProducts2.map { ItemViewModel().apply { updateProductName(it.productName) } }
+//            )
+//        }
+//    )
+//
+//    // Mock the view model for the category list
+//    val mockCategoryListViewModel = CategoryListViewModel().apply {
+//        addCategoryList(sampleCategories)
+//    }
+//
+//    // Call the composable with the mock view model
+//    ListScreen(categoryListViewModel = mockCategoryListViewModel)
+//}

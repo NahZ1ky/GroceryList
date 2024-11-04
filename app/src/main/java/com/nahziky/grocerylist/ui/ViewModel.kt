@@ -13,7 +13,7 @@ open class ItemViewModel { // TODO: remember to remove open
     private val _state: MutableStateFlow<Product> = MutableStateFlow(Product())
     val state: StateFlow<Product> = _state.asStateFlow()
 
-    // Product UiState modify
+    // Product UiState modifier
     fun updateProductName(name: String) {
         _state.update { oldState ->
             oldState.copy(
@@ -39,9 +39,9 @@ open class ItemViewModel { // TODO: remember to remove open
 @Suppress("UNCHECKED_CAST")
 open class CategoryViewModel { // TODO: remember to remove open
     private val _state: MutableStateFlow<Category> = MutableStateFlow(Category())
-    val state: StateFlow<Category> = _state.asStateFlow()
+    var state: StateFlow<Category> = _state.asStateFlow()
 
-    // Category UiState Modify
+    // Category UiState Modifier
     fun updateCategoryName(name: String) {
         _state.update { oldState ->
             oldState.copy(
@@ -70,6 +70,7 @@ open class CategoryViewModel { // TODO: remember to remove open
         product.toggleProductIsChecked(isChecked)
     }
 
+    // data retriever
     fun getProductList(): List<ItemViewModel> {
         return _state.value.products
     }
@@ -85,7 +86,8 @@ class CategoryListViewModel {
     private val _state: MutableStateFlow<CategoryList> = MutableStateFlow(CategoryList())
     val state: StateFlow<CategoryList> = _state.asStateFlow()
 
-    fun updateCategoryList(category: List<CategoryViewModel>) {
+    // Categories management
+    fun addCategoryList(category: List<CategoryViewModel>) {
         _state.update { oldState ->
             oldState.copy(
                 categories = oldState.categories.plus(category)
@@ -106,8 +108,7 @@ class CategoryListViewModel {
 }
 
 class AddScreenViewModel {
-    private val _state: MutableStateFlow<AddScreenProperties> =
-        MutableStateFlow(AddScreenProperties())
+    private val _state: MutableStateFlow<AddScreenProperties> = MutableStateFlow(AddScreenProperties())
     val state: StateFlow<AddScreenProperties> = _state.asStateFlow()
 
     fun updateCategoryTextBox(category: String) {

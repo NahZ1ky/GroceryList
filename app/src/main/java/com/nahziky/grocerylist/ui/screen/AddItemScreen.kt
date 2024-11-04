@@ -25,18 +25,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nahziky.grocerylist.ui.AddScreenViewModel
 import com.nahziky.grocerylist.ui.CategoryListViewModel
+import com.nahziky.grocerylist.ui.state.Category
 import perfetto.protos.UiState
 
 @Composable
 fun CategorySelection(
-    categories: List<String> = CategoryListViewModel.state.value.categoryList,
+    categories: List<String> = CategoryListViewModel().getCategoryNameList(),
     selectedCategory: String,
     onCategorySelected: (String) -> Unit,
     viewModel: AddScreenViewModel
 ) {
     var expanded by remember { mutableStateOf(false) }
     var textBoxValue by remember { mutableStateOf("") }
-    var textFieldSize by remember { mutableStateOf(Size.Zero) }
+    val textFieldSize by remember { mutableStateOf(Size.Zero) }
     val categoryList = remember { categories.toMutableList() }
     val icon: () -> ImageVector = {
         if (expanded) { Icons.Filled.KeyboardArrowUp }
@@ -46,7 +47,7 @@ fun CategorySelection(
     Column(modifier = Modifier.padding(20.dp)) {
         OutlinedTextField(
             value = textBoxValue,
-            onValueChange = { viewModel.updateCategoryTextBox() },
+            onValueChange = { viewModel.updateCategoryTextBox(it) },
             label = { Text("Category") },
             trailingIcon = {
 
@@ -80,13 +81,11 @@ fun CategorySelection(
                         onClick = {
                             textBoxValue = label
                             expanded = false
-                        }
-                    ) {
-                        Text(text = label)
-                    }
+                        },
+                        text = { Text(text = "Category") }
+                    )
                 }
             }
-
         }
     }
 }
@@ -95,5 +94,6 @@ fun CategorySelection(
 @Preview(showBackground = true)
 @Composable
 fun AddItemScreenPreview() {
-    CategorySelection()
+    CategorySelection(selectedCategory = "Category", onCategorySelected = {}, viewModel = AddScreenViewModel())
 }
+
