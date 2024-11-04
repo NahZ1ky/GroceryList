@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationDefaults
 import androidx.compose.material.BottomNavigationItem
@@ -18,6 +19,7 @@ import androidx.compose.material3.FloatingActionButtonElevation
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -40,6 +42,7 @@ import androidx.navigation.compose.rememberNavController
 import com.nahziky.grocerylist.R
 import com.nahziky.grocerylist.ui.AddScreenViewModel
 import com.nahziky.grocerylist.ui.CategoryListViewModel
+import com.nahziky.grocerylist.ui.theme.GroceryListTheme
 
 enum class GroceryAppScreens(@StringRes val title: Int) {
     ListScreen(title = R.string.grocery_list),
@@ -77,8 +80,10 @@ fun GroceryApp(
                 onClick = { navController.navigate(GroceryAppScreens.AddScreen.name) },
                 containerColor = MaterialTheme.colorScheme.tertiary,
                 elevation = FloatingActionButtonDefaults.elevation(8.dp),
-                shape = MaterialTheme.shapes.large,
-                modifier = Modifier.padding(16.dp),
+                shape = shapes.large,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .size(32.dp),
                 interactionSource = remember { MutableInteractionSource() },
                 content = {
                     Icon(

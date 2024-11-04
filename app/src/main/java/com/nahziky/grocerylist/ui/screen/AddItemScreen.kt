@@ -8,11 +8,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key.Companion.T
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nahziky.grocerylist.ui.AddScreenViewModel
@@ -31,70 +33,69 @@ fun AddScreen(
     Column(modifier = Modifier.padding(20.dp)) {
         // Category selection/addition
         ExposedDropdownMenuBox(
-            expanded = state.value.expanded,
-            onExpandedChange = { state.value.expanded = !state.value.expanded },
+            expanded = state.value.categoryDropdownMenuExpanded,
+            onExpandedChange = {
+                state.value.categoryDropdownMenuExpanded = !state.value.categoryDropdownMenuExpanded
+            },
+            modifier = Modifier.padding(vertical = 10.dp)
         ) {
-            TextField(
+            OutlinedTextField(
                 value = state.value.categoryTextBoxValue,
                 onValueChange = { viewModel.updateCategoryTextBox(it) },
-                readOnly = false,
-                label = { Text("Category") }
+                label = { Text("Category") },
+                modifier = Modifier.menuAnchor()
             )
             ExposedDropdownMenu(
-                expanded = state.value.expanded,
-                onDismissRequest = { state.value.expanded = false }
+                expanded = state.value.categoryDropdownMenuExpanded,
+                onDismissRequest = { state.value.categoryDropdownMenuExpanded = false }
             ) {
-                state.value.categoryList.forEach { category ->
-                    DropdownMenuItem(
-                        text = { Text(category.state.value.categoryName) },
-                        onClick = {
-                            state.value.categoryTextBoxValue = category.state.value.categoryName
-                            onCategorySelected(category.state.value.categoryName)
-                            state.value.expanded = false
+                val filteredOptions = CategoryListViewModel().getCategories().filter { category ->
+                    category.state.value.categoryName.contains(state.value.categoryTextBoxValue)
+                }
+                if (filteredOptions.isNotEmpty()) {
+                    ExposedDropdownMenu(
+                        expanded = state.value.categoryDropdownMenuExpanded,
+                        onDismissRequest = {
+                            state.value.categoryDropdownMenuExpanded =
+                                state.value.categoryTextBoxValue.isEmpty()
                         }
-                    )
+                    ) {
+                        filteredOptions.forEach { category ->
+                            DropdownMenuItem(
+                                text = { Text(category.state.value.categoryName) },
+                                onClick = {
+                                    state.value.categoryTextBoxValue = category.state.value.categoryName
+                                    onCategorySelected(category.state.value.categoryName)
+                                    state.value.categoryDropdownMenuExpanded = false
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }
 
         // Add Item
-        TextField(
+        OutlinedTextField(
             value = state.value.productTextBoxValue,
             onValueChange = { viewModel.updateProductTextBox(it) },
-            label = { Text("Product") }
+            label = { Text("Product (optional)") },
+            isError = viewModel.state.value.isProductInvalid
         )
 
         // submit button
         Button(
-            onClick = { /*TODO*/ },
+            onClick = { viewModel.onSubmit() },
             modifier = Modifier.width(200.dp)
+                .padding(vertical = 10.dp)
         ) {
             Text("Add Item")
         }
-
-//        OutlinedTextField(
-//            value = state.value.textBoxValue,
-//            onValueChange = { viewModel.updateCategoryTextBox(it) },
-//            label = { Text("Category") },
-//            trailingIcon = { state.value.icon() }
-//        )
-//        DropdownMenu(
-//            expanded = state.value.expanded,
-//            onDismissRequest = { state.value.expanded = false },
-//        ) {
-//            state.value.categoryList.forEach { category ->
-//                DropdownMenuItem(
-//                    text = { Text(category.state.value.categoryName) },
-//                    onClick = {
-//                        state.value.textBoxValue = category.state.value.categoryName
-//                        onCategorySelected(category.state.value.categoryName)
-//                        state.value.expanded = false
-//                    }
-//                )
-//            }
-//        }
     }
 }
+
+
+
 
 
 @Preview(showBackground = true)

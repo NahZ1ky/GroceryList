@@ -55,20 +55,18 @@ fun ListScreen(
 
 @Composable
 fun Category(
-    categoryViewModel: CategoryViewModel = CategoryViewModel(),
+    categoryViewModel: CategoryViewModel,
 ) {
     val uiState by categoryViewModel.state.collectAsState()
-    val childCheckedStates = remember { mutableStateListOf<Boolean>() }
 
+    val childCheckedStates = remember { mutableStateListOf<Boolean>() }
     if (childCheckedStates.size != uiState.products.size) {
         childCheckedStates.clear()
         childCheckedStates.addAll(List(uiState.products.size) { false })
     }
-
     uiState.products.forEachIndexed { index, product ->
         childCheckedStates[index] = product.state.collectAsState().value.isChecked
     }
-
     val parentState = when {
         childCheckedStates.all { it } -> ToggleableState.On
         childCheckedStates.none { it } -> ToggleableState.Off
@@ -76,7 +74,7 @@ fun Category(
     }
 
     MaterialTheme {
-        Box {
+        Card {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()

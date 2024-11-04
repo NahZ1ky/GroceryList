@@ -4,29 +4,24 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.nahziky.grocerylist.ui.CategoryViewModel
 
 data class AddScreenProperties(
-    // CategoryList
-    val categoryList: List<CategoryViewModel> = listOf(),
-    val categoryListExpanded: Boolean = false,
-
-    // Category
+    // CategoryDropdownMenu
+    var categoryDropdownMenuExpanded: Boolean = false,
     var categoryTextBoxValue: String = "",
+    val icon: () -> ImageVector = {
+        if (categoryDropdownMenuExpanded) { Icons.Filled.KeyboardArrowUp }
+        else { Icons.Filled.KeyboardArrowDown }
+    },
 
-    // Product
+    // ProductTextBox
     val productTextBoxValue: String = "",
-    val isProductValid: Boolean = false,
+    val isProductInvalid: Boolean = false,
 
-    // Submit
+    // SubmitButton
     val submitEnabled: Boolean = false,
 
     // AddScreen native properties
         // General
-    var expanded: Boolean  = false,
     val textFieldSize: Int = 0,
-    val icon: () -> ImageVector = {
-        if (expanded) { Icons.Filled.KeyboardArrowUp }
-        else { Icons.Filled.KeyboardArrowDown }
-    },
 )
