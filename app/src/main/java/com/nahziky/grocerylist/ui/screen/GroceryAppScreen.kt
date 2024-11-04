@@ -27,6 +27,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -54,7 +55,7 @@ fun GroceryApp(
     val currentScreen = GroceryAppScreens.valueOf(
         backStackEntry?.destination?.route ?: GroceryAppScreens.ListScreen.name
     )
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.state.collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -72,21 +73,17 @@ fun GroceryApp(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = ,
+                onClick = { navController.navigate(GroceryAppScreens.AddScreen.name) },
                 containerColor = MaterialTheme.colorScheme.tertiary,
                 elevation = FloatingActionButtonDefaults.elevation(8.dp),
-                shape = MaterialTheme.shapes.medium,
+                shape = MaterialTheme.shapes.large,
                 modifier = Modifier.padding(16.dp),
                 interactionSource = remember { MutableInteractionSource() },
-                contentColor = MaterialTheme.colorScheme.onTertiary,
                 content = {
                     Icon(
                         imageVector = Icons.Filled.Add,
                         contentDescription = R.string.add_product.toString()
                     )
-                },
-                onClick = {
-                    navController.navigate(GroceryAppScreens.AddScreen.name)
                 }
             )
         }
@@ -158,12 +155,13 @@ fun FloatingActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     shape: Shape = FloatingActionButtonDefaults.shape,
-    containerColor: androidx.compose.ui.graphics.Color = FloatingActionButtonDefaults.containerColor,
+    containerColor: Color = FloatingActionButtonDefaults.containerColor,
     elevation: FloatingActionButtonElevation = FloatingActionButtonDefaults.elevation(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    content: @Composable () -> Unit
 ) {
-    Icon(
-        imageVector = Icons.Filled.Add,
-        contentDescription = R.string.add_product.toString()
+    IconButton(
+        onClick = onClick,
+        content = content
     )
 }

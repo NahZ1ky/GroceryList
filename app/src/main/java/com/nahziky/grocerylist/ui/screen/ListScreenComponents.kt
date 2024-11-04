@@ -38,12 +38,12 @@ import com.nahziky.grocerylist.ui.theme.*
 fun ListScreen(
     categoryListViewModel: CategoryListViewModel = CategoryListViewModel()
 ) {
-    val uiState by categoryListViewModel.uiState.collectAsState()
+    val uiState by categoryListViewModel.state.collectAsState()
 
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        items(uiState.categoryList) { categoryViewModel ->
+        items(uiState.categories) { categoryViewModel ->
             Category(
                 categoryViewModel = categoryViewModel,
             )
@@ -57,7 +57,7 @@ fun ListScreen(
 fun Category(
     categoryViewModel: CategoryViewModel = CategoryViewModel(),
 ) {
-    val uiState by categoryViewModel.uiState.collectAsState()
+    val uiState by categoryViewModel.state.collectAsState()
     val childCheckedStates = remember { mutableStateListOf<Boolean>() }
 
     if (childCheckedStates.size != uiState.products.size) {
@@ -66,7 +66,7 @@ fun Category(
     }
 
     uiState.products.forEachIndexed { index, product ->
-        childCheckedStates[index] = product.uiState.collectAsState().value.isChecked
+        childCheckedStates[index] = product.state.collectAsState().value.isChecked
     }
 
     val parentState = when {
@@ -110,7 +110,7 @@ fun Category(
                     items(uiState.products) { product ->
                         val index = uiState.products.indexOf(product)
                         ProductCard(
-                            product = uiState.products[index].uiState.collectAsState().value,
+                            product = uiState.products[index].state.collectAsState().value,
                             onCheckedChange = {
                                 childCheckedStates[index] = true
                                 categoryViewModel.updateProductChecked(index, childCheckedStates[index])

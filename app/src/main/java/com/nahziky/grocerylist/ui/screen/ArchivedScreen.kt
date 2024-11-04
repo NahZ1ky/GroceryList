@@ -9,6 +9,6 @@ import com.nahziky.grocerylist.ui.CategoryListViewModel
 fun ArchiveScreen(
     viewModel: CategoryListViewModel
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.state.collectAsState()
 
 }

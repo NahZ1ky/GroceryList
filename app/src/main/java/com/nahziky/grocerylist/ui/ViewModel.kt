@@ -1,5 +1,6 @@
 package com.nahziky.grocerylist.ui
 
+import com.nahziky.grocerylist.ui.state.AddScreenProperties
 import com.nahziky.grocerylist.ui.state.Category
 import com.nahziky.grocerylist.ui.state.CategoryList
 import com.nahziky.grocerylist.ui.state.Product
@@ -10,7 +11,7 @@ import kotlinx.coroutines.flow.update
 
 open class ItemViewModel { // TODO: remember to remove open
     private val _state: MutableStateFlow<Product> = MutableStateFlow(Product())
-    open val uiState: StateFlow<Product> = _state.asStateFlow() // TODO: remember to remove open
+    val state: StateFlow<Product> = _state.asStateFlow()
 
     // Product UiState modify
     fun updateProductName(name: String) {
@@ -35,9 +36,10 @@ open class ItemViewModel { // TODO: remember to remove open
     }
 }
 
+@Suppress("UNCHECKED_CAST")
 open class CategoryViewModel { // TODO: remember to remove open
-    val _state: MutableStateFlow<Category> = MutableStateFlow(Category()) // TODO: remember to add private
-    open val uiState: StateFlow<Category> = _state.asStateFlow() // TODO: remember to remove open
+    private val _state: MutableStateFlow<Category> = MutableStateFlow(Category())
+    val state: StateFlow<Category> = _state.asStateFlow()
 
     // Category UiState Modify
     fun updateCategoryName(name: String) {
@@ -49,17 +51,17 @@ open class CategoryViewModel { // TODO: remember to remove open
     }
 
     // Products management
-    fun addProduct(product: ItemViewModel) {
+    fun addProduct(product: String) {
         _state.update { oldState ->
             oldState.copy(
-                products = oldState.products.plus(product)
+                products = oldState.products.plus(product) as List<ItemViewModel>
             )
         }
     }
-    fun removeProduct(product: ItemViewModel) {
+    fun removeProduct(product: String) {
         _state.update { oldState ->
             oldState.copy(
-                products = oldState.products.minus(product)
+                products = oldState.products.minus(product) as List<ItemViewModel>
             )
         }
     }
@@ -67,18 +69,100 @@ open class CategoryViewModel { // TODO: remember to remove open
         val product = _state.value.products[index]
         product.toggleProductIsChecked(isChecked)
     }
+
+    fun getProductList(): List<ItemViewModel> {
+        return _state.value.products
+    }
+    fun getProductNameList(): List<String> {
+        return _state.value.products.map { it.state.value.productName }
+    }
+    fun getProductByName(name: String): ItemViewModel? {
+        return _state.value.products.find { it.state.value.productName == name }
+    }
 }
 
 class CategoryListViewModel {
     private val _state: MutableStateFlow<CategoryList> = MutableStateFlow(CategoryList())
-    val uiState: StateFlow<CategoryList> = _state.asStateFlow()
+    val state: StateFlow<CategoryList> = _state.asStateFlow()
 
-    fun updateCategoryList(categories: List<CategoryViewModel>) {
+    fun updateCategoryList(category: List<CategoryViewModel>) {
         _state.update { oldState ->
             oldState.copy(
-                categoryList = categories
+                categories = oldState.categories.plus(category)
             )
         }
     }
 
+    // data retriever
+    fun getCategories(): List<CategoryViewModel> {
+        return _state.value.categories
+    }
+    fun getCategoryNameList(): List<String> {
+        return _state.value.categories.map { it.state.value.categoryName }
+    }
+    fun getCategoryByName(name: String): CategoryViewModel? {
+        return _state.value.categories.find { it.state.value.categoryName == name }
+    }
 }
+
+class AddScreenViewModel {
+    private val _state: MutableStateFlow<AddScreenProperties> =
+        MutableStateFlow(AddScreenProperties())
+    val state: StateFlow<AddScreenProperties> = _state.asStateFlow()
+
+    fun updateCategoryTextBox(category: String) {
+        _state.update { oldState ->
+            oldState.copy(
+                category = category
+            )
+        }
+    }
+
+    fun updateProductTextBox(item: String) {
+        _state.update { oldState ->
+            oldState.copy(
+                productName = item,
+                isProductValid = false
+            )
+        }
+    }
+
+    fun submitAdd() {
+        val state = _state.value
+
+        if (categoryExists(state.category) &&
+            state.productName.isNotEmpty()
+        ) {
+            _state.update { oldState ->
+                oldState.categoryList.find { it.state.value.categoryName == state.category }?.addProduct(state.productName)
+                oldState.copy(
+                    category = "",
+                    productName = "",
+                    isProductValid = false,
+                )
+            }
+        } else if (state.category.isEmpty() &&
+            state.productName.isNotEmpty()
+        ) {
+            _state.update { oldState ->
+                @Suppress("UNCHECKED_CAST")
+                oldState.copy(
+                    category = "",
+                    categoryList = oldState.categoryList.plus(oldState.category) as List<CategoryViewModel>,
+                    productName = "",
+                    isProductValid = false,
+
+                )
+            }
+        }
+    }
+
+    fun categoryExists(category: String): Boolean {
+        val state = _state.value
+        return state.categoryList.any { it.state.value.categoryName == category }
+    }
+}
+
+
+
+
