@@ -114,7 +114,7 @@ class AddScreenViewModel {
     fun updateCategoryTextBox(category: String) {
         _state.update { oldState ->
             oldState.copy(
-                category = category
+                categoryTextBoxValue = category,
             )
         }
     }
@@ -122,35 +122,35 @@ class AddScreenViewModel {
     fun updateProductTextBox(item: String) {
         _state.update { oldState ->
             oldState.copy(
-                productName = item,
+                productTextBoxValue = item,
                 isProductValid = false
             )
         }
     }
 
-    fun submitAdd() {
+    fun onSubmit() {
         val state = _state.value
 
-        if (categoryExists(state.category) &&
-            state.productName.isNotEmpty()
+        if (categoryExists(state.categoryTextBoxValue) &&
+            state.productTextBoxValue.isNotEmpty()
         ) {
             _state.update { oldState ->
-                oldState.categoryList.find { it.state.value.categoryName == state.category }?.addProduct(state.productName)
+                oldState.categoryList.find { it.state.value.categoryName == state.categoryTextBoxValue }?.addProduct(state.productTextBoxValue)
                 oldState.copy(
-                    category = "",
-                    productName = "",
+                    categoryTextBoxValue = "",
+                    productTextBoxValue = "",
                     isProductValid = false,
                 )
             }
-        } else if (state.category.isEmpty() &&
-            state.productName.isNotEmpty()
+        } else if (state.categoryTextBoxValue.isEmpty() &&
+            state.productTextBoxValue.isNotEmpty()
         ) {
             _state.update { oldState ->
                 @Suppress("UNCHECKED_CAST")
                 oldState.copy(
-                    category = "",
-                    categoryList = oldState.categoryList.plus(oldState.category) as List<CategoryViewModel>,
-                    productName = "",
+                    categoryTextBoxValue = "",
+                    categoryList = oldState.categoryList.plus(oldState.categoryTextBoxValue) as List<CategoryViewModel>,
+                    productTextBoxValue = "",
                     isProductValid = false,
 
                 )
@@ -158,7 +158,17 @@ class AddScreenViewModel {
         }
     }
 
-    fun categoryExists(category: String): Boolean {
+    fun onCategorySelected(category: String, ) {
+        _state.update { oldState ->
+            oldState.copy(
+                categoryTextBoxValue = category,
+                expanded = false
+            )
+        }
+    }
+
+    // helper methods
+    private fun categoryExists(category: String): Boolean {
         val state = _state.value
         return state.categoryList.any { it.state.value.categoryName == category }
     }

@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -37,6 +38,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.nahziky.grocerylist.R
+import com.nahziky.grocerylist.ui.AddScreenViewModel
 import com.nahziky.grocerylist.ui.CategoryListViewModel
 
 enum class GroceryAppScreens(@StringRes val title: Int) {
@@ -50,7 +52,6 @@ fun GroceryApp(
     viewModel: CategoryListViewModel = CategoryListViewModel(),
     navController: NavHostController = rememberNavController(),
 ) {
-    val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentScreen = GroceryAppScreens.valueOf(
         backStackEntry?.destination?.route ?: GroceryAppScreens.ListScreen.name
@@ -95,6 +96,7 @@ fun GroceryApp(
         ) {
             composable(route = GroceryAppScreens.ListScreen.name) { ListScreen(viewModel) }
             composable(route = GroceryAppScreens.ArchiveScreen.name) { ArchiveScreen(viewModel) }
+            composable(route = GroceryAppScreens.AddScreen.name) { AddScreen(viewModel = AddScreenViewModel()) }
         }
     }
 }
@@ -164,4 +166,14 @@ fun FloatingActionButton(
         onClick = onClick,
         content = content
     )
+}
+
+
+
+
+
+@Preview
+@Composable
+fun GroceryAppPreview() {
+    GroceryApp()
 }
