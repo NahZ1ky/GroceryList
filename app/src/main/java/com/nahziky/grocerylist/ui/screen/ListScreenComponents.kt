@@ -103,7 +103,6 @@ fun Category(
                 }
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(4.dp),
-                    modifier = Modifier.weight(20f) // TODO: probably not the best place to place this
                 ) {
                     items(uiState.products) { product ->
                         val index = uiState.products.indexOf(product)
@@ -124,7 +123,7 @@ fun Category(
 @Composable
 fun ProductCard(
     product: Product,
-    onCheckedChange: ((Boolean) -> Unit)? = null,
+    onCheckedChange: ((Boolean) -> Unit)? = {},
 ) {
     Card(
         modifier = Modifier

@@ -99,9 +99,15 @@ fun GroceryApp(
             startDestination = GroceryAppScreens.ListScreen.name,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(route = GroceryAppScreens.ListScreen.name) { ListScreen(viewModel) }
-            composable(route = GroceryAppScreens.ArchiveScreen.name) { ArchiveScreen(viewModel) }
-            composable(route = GroceryAppScreens.AddScreen.name) { AddScreen(viewModel = AddScreenViewModel()) }
+            composable(route = GroceryAppScreens.ListScreen.name) {
+                ListScreen(viewModel)
+            }
+            composable(route = GroceryAppScreens.ArchiveScreen.name) {
+                ArchiveScreen(viewModel)
+            }
+            composable(route = GroceryAppScreens.AddScreen.name) {
+                AddScreen(viewModel = AddScreenViewModel())
+            }
         }
     }
 }
@@ -125,7 +131,7 @@ fun TopBar(
                 IconButton(onClick = navigateUp) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "go back"
+                        contentDescription = "Go Back"
                     )
                 }
             }

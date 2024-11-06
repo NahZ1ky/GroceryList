@@ -10,11 +10,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.key.Key.Companion.T
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nahziky.grocerylist.ui.AddScreenViewModel
@@ -43,7 +41,8 @@ fun AddScreen(
                 value = state.value.categoryTextBoxValue,
                 onValueChange = { viewModel.updateCategoryTextBox(it) },
                 label = { Text("Category") },
-                modifier = Modifier.menuAnchor()
+                modifier = Modifier.menuAnchor(),
+                isError = viewModel.state.value.categoryTextBoxValue.isEmpty()
             )
             ExposedDropdownMenu(
                 expanded = state.value.categoryDropdownMenuExpanded,
@@ -79,8 +78,7 @@ fun AddScreen(
         OutlinedTextField(
             value = state.value.productTextBoxValue,
             onValueChange = { viewModel.updateProductTextBox(it) },
-            label = { Text("Product (optional)") },
-            isError = viewModel.state.value.isProductInvalid
+            label = { Text("Product (optional)") }
         )
 
         // submit button

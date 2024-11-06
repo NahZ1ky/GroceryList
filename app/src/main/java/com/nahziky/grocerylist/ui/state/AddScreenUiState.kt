@@ -13,10 +13,10 @@ data class AddScreenProperties(
         if (categoryDropdownMenuExpanded) { Icons.Filled.KeyboardArrowUp }
         else { Icons.Filled.KeyboardArrowDown }
     },
+    val isCategoryInvalid: Boolean = false,
 
     // ProductTextBox
     val productTextBoxValue: String = "",
-    val isProductInvalid: Boolean = false,
 
     // SubmitButton
     val submitEnabled: Boolean = false,

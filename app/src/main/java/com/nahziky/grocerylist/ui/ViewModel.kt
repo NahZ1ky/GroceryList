@@ -118,7 +118,7 @@ class AddScreenViewModel {
         _state.update { oldState ->
             oldState.copy(
                 categoryTextBoxValue = category,
-                isProductInvalid = false
+                isCategoryInvalid = false
             )
         }
     }
@@ -126,8 +126,7 @@ class AddScreenViewModel {
     fun updateProductTextBox(item: String) {
         _state.update { oldState ->
             oldState.copy(
-                productTextBoxValue = item,
-                isProductInvalid = false
+                productTextBoxValue = item
             )
         }
     }
@@ -145,14 +144,14 @@ class AddScreenViewModel {
                         oldState.copy(
                             categoryTextBoxValue = "",
                             productTextBoxValue = "",
-                            isProductInvalid = false,
+                            isCategoryInvalid = false,
                         )
                     }
                 } else { // categoryTextBox: Y, category: Y, productTextBox: N
                     _state.update { oldState ->
                         oldState.copy(
-                            categoryTextBoxValue = "",
-                            isProductInvalid = false,
+                            categoryTextBoxValue = "same product already exists",
+                            isCategoryInvalid = false,
                         )
                     }
                 }
@@ -164,13 +163,17 @@ class AddScreenViewModel {
                             it.state.value.categoryName == localProperty.categoryTextBoxValue
                         }?.addProduct(localProperty.productTextBoxValue)
                         oldState.copy(
-                            isProductInvalid = true,
+                            categoryTextBoxValue = "",
+                            productTextBoxValue = "",
+                            isCategoryInvalid = true,
                         )
                     }
                 } else { // categoryTextBox: Y, category: N, productTextBox: N
+                    categoryListProperties.addCategory(localProperty.categoryTextBoxValue)
                     _state.update { oldState ->
                         oldState.copy(
-                            isProductInvalid = true,
+                            categoryTextBoxValue = "",
+                            isCategoryInvalid = true,
                         )
                     }
                 }
@@ -178,91 +181,11 @@ class AddScreenViewModel {
         } else { // categoryTextBox: N
             _state.update { oldState ->
                 oldState.copy(
-                    isProductInvalid = true,
+                    isCategoryInvalid = true,
                 )
             }
         }
     }
-/*
-        if (localProperty.categoryTextBoxValue.isNotEmpty() &&
-                    localProperty.productTextBoxValue.isNotEmpty() &&
-                    categoryExists(localProperty.categoryTextBoxValue)) { // categoryTextBox: Y, productTextBox: Y, category: Y
-            _state.update { oldState ->
-                categoryListProperties.state.value.categories.find {
-                    it.state.value.categoryName == localProperty.categoryTextBoxValue
-                }?.addProduct(localProperty.productTextBoxValue)
-
-            }
-        } else if (localProperty.categoryTextBoxValue.isNotEmpty() &&
-                    localProperty.productTextBoxValue.isNotEmpty() &&
-                    !categoryExists(localProperty.categoryTextBoxValue)) { // categoryTextBox: Y, productTextBox: Y, category: N
-            _state.update { oldState ->
-                categoryListProperties.addCategory(localProperty.categoryTextBoxValue)
-                categoryListProperties.state.value.categories.find {
-                    it.state.value.categoryName == localProperty.categoryTextBoxValue
-                }?.addProduct(localProperty.productTextBoxValue)
-                oldState.copy(
-                    categoryTextBoxValue = "",
-                    productTextBoxValue = "",
-                    isProductInvalid = false,
-                )
-            }
-        } else if (localProperty.categoryTextBoxValue.isNotEmpty() &&
-                    localProperty.productTextBoxValue.isEmpty() &&
-                    categoryExists(localProperty.categoryTextBoxValue)) { // categoryTextBox: Y, productTextBox: N, category: Y
-            _state.update { oldState ->
-                oldState.copy(
-                    categoryTextBoxValue = "",
-                    productTextBoxValue = "",
-                    isProductInvalid = false,
-                )
-            }
-        } else if (localProperty.categoryTextBoxValue.isEmpty() &&
-            localProperty.productTextBoxValue.isNotEmpty() &&
-            categoryExists(localProperty.categoryTextBoxValue)) { // categoryTextBox: N, productTextBox: Y, category: Y
-            _state.update { oldState ->
-                oldState.copy(
-                    isProductInvalid = true
-                )
-            }
-        } else if (localProperty.categoryTextBoxValue.isNotEmpty() &&
-                    localProperty.productTextBoxValue.isEmpty() &&
-                    !categoryExists(localProperty.categoryTextBoxValue)) { // categoryTextBox: Y, productTextBox: N, category: N
-            _state.update { oldState ->
-                categoryListProperties.addCategory(localProperty.categoryTextBoxValue)
-                oldState.copy(
-                    categoryTextBoxValue = "",
-                    productTextBoxValue = "",
-                    isProductInvalid = false,
-                )
-            }
-        } else if (localProperty.categoryTextBoxValue.isEmpty() &&
-                    localProperty.productTextBoxValue.isEmpty() &&
-                    categoryExists(localProperty.categoryTextBoxValue)) { // categoryTextBox: N, productTextBox: N
-        }
-        else if (!categoryExists(localProperty.categoryTextBoxValue) &&
-                    localProperty.productTextBoxValue.isNotEmpty()) { // category
-            _state.update { oldState ->
-                categoryListProperties.addCategory(localProperty.categoryTextBoxValue)
-                categoryListProperties.state.value.categories.find { it.state.value.categoryName == localProperty.categoryTextBoxValue }?.addProduct(localProperty.productTextBoxValue),
-                @Suppress("UNCHECKED_CAST")
-                oldState.copy(
-                    categoryTextBoxValue = "",
-                    productTextBoxValue = "",
-                    isProductInvalid = false,
-                )
-            }
-        } else if (!categoryExists(localProperty.categoryTextBoxValue) &&
-                    localProperty.productTextBoxValue.isEmpty()) { // category
-            _state.update { oldState ->
-                oldState.copy(
-                    categoryTextBoxValue = "",
-                    isProductInvalid = true,
-                )
-            }
-        }
-    }
-*/
 
     fun onCategorySelected(category: String, ) {
         _state.update { oldState ->
