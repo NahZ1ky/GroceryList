@@ -25,7 +25,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -42,7 +41,6 @@ import androidx.navigation.compose.rememberNavController
 import com.nahziky.grocerylist.R
 import com.nahziky.grocerylist.ui.AddScreenViewModel
 import com.nahziky.grocerylist.ui.CategoryListViewModel
-import com.nahziky.grocerylist.ui.theme.GroceryListTheme
 
 enum class GroceryAppScreens(@StringRes val title: Int) {
     ListScreen(title = R.string.grocery_list),
@@ -59,7 +57,6 @@ fun GroceryApp(
     val currentScreen = GroceryAppScreens.valueOf(
         backStackEntry?.destination?.route ?: GroceryAppScreens.ListScreen.name
     )
-    val uiState by viewModel.state.collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -106,11 +103,12 @@ fun GroceryApp(
                 ArchiveScreen(viewModel)
             }
             composable(route = GroceryAppScreens.AddScreen.name) {
-                AddScreen(viewModel = AddScreenViewModel())
+                AddScreen(addScreenViewModel = AddScreenViewModel(), categoryListViewModel = viewModel)
             }
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
