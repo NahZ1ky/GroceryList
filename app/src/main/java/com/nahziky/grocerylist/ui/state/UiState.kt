@@ -1,16 +1,11 @@
 package com.nahziky.grocerylist.ui.state
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.state.ToggleableState
-
 data class ProductProperties(
     val productName: String,
     val isChecked: Boolean = false
 )
 
+/*
 data class CategoryProperties(
     val categoryName: String = "",
     val listOfProducts: List<ProductProperties> = emptyList(),
@@ -54,8 +49,10 @@ data class CategoryProperties(
 data class CategoryListProperties(
     val listOfCategories: List<CategoryProperties> = emptyList()
 )
+*/
 
 data class AddScreenProperties(
+/*
     // CategoryDropdownMenu
     var categoryDropdownMenuExpanded: Boolean = false,
     var categoryTextBoxValue: String = "",
@@ -64,15 +61,16 @@ data class AddScreenProperties(
         else { Icons.Filled.KeyboardArrowDown }
     },
     val isCategoryInvalid: Boolean = false,
+*/
 
     // ProductTextBox
     val productTextBoxValue: String = "",
+    val isProductValid: Boolean = false,
 
     // SubmitButton
-    val submitEnabled: Boolean = false,
+    val submitEnabled: Boolean = true,
 
     // AddScreen native properties
-        // General
     val textFieldSize: Int = 0,
 )
 

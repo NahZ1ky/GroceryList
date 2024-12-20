@@ -13,6 +13,6 @@ class ProductRepository(context: Context) : RepositoryInterface {
     override suspend fun deleteProduct(product: Product) { productDao.delete(product) }
 
     override fun getAllProducts(): Flow<List<Product>> { return productDao.getAllProducts() }
-    override fun getShowById(id: Int): Flow<Product?> { return productDao.getShowById(id) }
+    override fun getProductById(id: Int): Flow<Product?> { return productDao.getShowById(id) }
 
 }

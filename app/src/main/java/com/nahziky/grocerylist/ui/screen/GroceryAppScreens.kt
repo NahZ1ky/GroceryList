@@ -12,8 +12,9 @@ import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -44,8 +45,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.nahziky.grocerylist.R
-import com.nahziky.grocerylist.ui.AddScreenViewModel
-import com.nahziky.grocerylist.ui.CategoryListViewModel
+import com.nahziky.grocerylist.ui.GeneralViewModel
 import com.nahziky.grocerylist.ui.SettingsPreferencesViewModel
 
 enum class GroceryAppScreens(@StringRes val title: Int) {
@@ -56,7 +56,7 @@ enum class GroceryAppScreens(@StringRes val title: Int) {
 
 @Composable
 fun GroceryApp(
-    listViewModel: CategoryListViewModel = CategoryListViewModel(),
+    generalViewModel: GeneralViewModel = viewModel(factory = GeneralViewModel.factory),
     settingsViewModel: SettingsPreferencesViewModel
     = viewModel(
         factory = SettingsPreferencesViewModel
@@ -80,7 +80,7 @@ fun GroceryApp(
                     currentScreen = currentScreen,
                     canNavigateBack = navController.previousBackStackEntry != null,
                     navigateUp = { navController.navigateUp() },
-                    settingViewModel = viewModel(factory = SettingsPreferencesViewModel.Factory)
+                    settingViewModel = viewModel(factory = SettingsPreferencesViewModel.Factory),
                 )
             } else {
                 Log.d("mainActivity - setting", "title is not centered")
@@ -88,7 +88,7 @@ fun GroceryApp(
                     currentScreen = currentScreen,
                     canNavigateBack = navController.previousBackStackEntry != null,
                     navigateUp = { navController.navigateUp() },
-                    settingViewModel = viewModel(factory = SettingsPreferencesViewModel.Factory)
+                    settingViewModel = viewModel<SettingsPreferencesViewModel>(factory = SettingsPreferencesViewModel.Factory),
                 )
             }
         },
@@ -122,15 +122,15 @@ fun GroceryApp(
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(route = GroceryAppScreens.ListScreen.name) {
-                ListScreen(listViewModel)
+                ListScreen(generalViewModel)
             }
             composable(route = GroceryAppScreens.ArchiveScreen.name) {
-                ArchiveScreen(listViewModel)
+                ArchiveScreen()
             }
             composable(route = GroceryAppScreens.AddScreen.name) {
                 AddScreen(
-                    addScreenViewModel = AddScreenViewModel(),
-                    categoryListViewModel = listViewModel
+                    generalViewModel = viewModel(factory = GeneralViewModel.factory),
+                    //categoryListViewModel = generalViewModel
                 )
             }
         }
@@ -171,8 +171,8 @@ fun SidedTopBar(
                 }
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Settings,
-                    contentDescription = "toggle centered title"
+                    imageVector = Icons.Filled.KeyboardArrowUp,
+                    contentDescription = "change title to center align"
                 )
             }
         }
@@ -212,7 +212,7 @@ fun CenteredTopBar(
                 }
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Settings,
+                    imageVector = Icons.Filled.KeyboardArrowLeft,
                     contentDescription = "toggle centered title"
                 )
             }

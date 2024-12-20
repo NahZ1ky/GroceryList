@@ -1,40 +1,66 @@
 package com.nahziky.grocerylist.ui.screen
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.nahziky.grocerylist.ui.CategoryListViewModel
-import com.nahziky.grocerylist.ui.state.CategoryProperties
-import com.nahziky.grocerylist.ui.state.ProductProperties
+import com.nahziky.grocerylist.ui.GeneralViewModel
+import com.nahziky.grocerylist.ui.data.Product
+//import com.nahziky.grocerylist.ui.CategoryListViewModel
+//import com.nahziky.grocerylist.ui.state.CategoryProperties
 import com.nahziky.grocerylist.ui.theme.Typography
 
 @Composable
 fun ListScreen(
-    categoryListViewModel: CategoryListViewModel = CategoryListViewModel()
+    generalViewModel: GeneralViewModel,
+    modifier: Modifier = Modifier
+) {
+    val dbState by generalViewModel.dbState.collectAsState()
+
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = modifier
+    ) {
+        items(dbState.productList) { product ->
+            ProductCard(
+                product = product,
+                viewModel = generalViewModel,
+                onCheckedChange = { isChecked ->
+                    generalViewModel.updateProductChecked(product, isChecked)
+                }
+            )
+        }
+    }
+
+}
+
+
+/*
+@Composable
+fun ListScreen(
+    categoryListViewModel: CategoryListViewModel = viewModel(
+        factory = CategoryListViewModel.factory
+    )
 ) {
     val uiState by categoryListViewModel.uiState.collectAsState()
     Log.d("ListScreen", "$uiState")
@@ -126,13 +152,19 @@ fun Category(
         }
     }
 }
-
+*/
 
 @Composable
 fun ProductCard(
-    product: ProductProperties,
+    product: Product,
     onCheckedChange: ((Boolean) -> Unit)? = {},
+    viewModel: GeneralViewModel
 ) {
+    LaunchedEffect(Unit) {
+        if (product.calories == "") {
+            viewModel.fetchCalories(product)
+        }
+    }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -144,18 +176,36 @@ fun ProductCard(
         Row(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(4.dp)
+            modifier = Modifier.padding(8.dp)
         ) {
             Checkbox(
-                checked = product.isChecked,
+                checked = product.productIsChecked,
                 onCheckedChange = onCheckedChange,
-                modifier = Modifier.padding(horizontal = 4.dp)
+                modifier = Modifier.padding(start = 4.dp)
             )
-            Text(
-                text = product.productName,
-                fontSize = 22.sp,
-                style = Typography.bodyMedium
-            )
+            Column(
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    text = product.productName,
+                    fontSize = 24.sp,
+                    style = Typography.bodyMedium
+                )
+                Spacer(Modifier.size(2.dp))
+                val caloriesInfo = if (product.calories != "") {
+                    "Calories: ${product.calories}"
+                } else {
+                    "Calories info not available"
+                }
+                Text(
+                    text = caloriesInfo,
+                    fontSize = 12.sp,
+                    modifier = Modifier.alpha(0.75F)
+
+                )
+            }
+
         }
     }
 }
@@ -168,14 +218,15 @@ fun ProductCard(
 @Preview(showBackground = true)
 @Composable
 fun PreviewProductCard() {
-    val sampleProduct = ProductProperties(
+    val sampleProduct = Product(
         productName = "Sample Product",
-        isChecked = false
+        productIsChecked = false
     )
 
-    ProductCard(product = sampleProduct)
+    // ProductCard(product = sampleProduct)
 }
 
+/*
 @Preview(showBackground = true)
 @Composable
 fun PreviewCategory() {
@@ -184,7 +235,7 @@ fun PreviewCategory() {
         ProductProperties("Eggs", true),
         ProductProperties("Che2222ese")
     )
-    val categoryListViewModel = CategoryListViewModel()
+    val categoryListViewModel = viewModel( factory = CategoryListViewModel.factory )
     Category(
         category = CategoryProperties("Groceries", sampleProducts),
         onProductCheckedChange = { index, newState ->
@@ -236,3 +287,4 @@ fun PreviewCategoryList() {
 
     ListScreen(categoryListViewModel)
 }
+*/

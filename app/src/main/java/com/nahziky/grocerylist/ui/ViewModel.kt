@@ -1,17 +1,21 @@
 package com.nahziky.grocerylist.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.nahziky.grocerylist.Application
+import com.nahziky.grocerylist.GroceryApplication
+import com.nahziky.grocerylist.ui.data.NutritionFactRepository
+import com.nahziky.grocerylist.ui.data.Product
 import com.nahziky.grocerylist.ui.data.RepositoryInterface
 import com.nahziky.grocerylist.ui.data.UserPreferencesRepository
 import com.nahziky.grocerylist.ui.state.AddScreenProperties
-import com.nahziky.grocerylist.ui.state.CategoryListProperties
-import com.nahziky.grocerylist.ui.state.CategoryProperties
+import com.nahziky.grocerylist.ui.state.DbState
+//import com.nahziky.grocerylist.ui.state.CategoryListProperties
+//import com.nahziky.grocerylist.ui.state.CategoryProperties
 import com.nahziky.grocerylist.ui.state.SettingPreferences
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -22,13 +26,21 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/*
 class CategoryListViewModel(
     private val productRepository: RepositoryInterface,
-
     ) : ViewModel() {
     private val _categoryListState: MutableStateFlow<CategoryListProperties> =
         MutableStateFlow(CategoryListProperties())
     val uiState: StateFlow<CategoryListProperties> = _categoryListState.asStateFlow()
+    val dbState: StateFlow<DbState> =
+        productRepository.getAllCategories().map {
+            DbState(it)
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = DbState()
+        )
 
     fun setCategoryList(list: List<CategoryProperties>) {
         _categoryListState.update { oldState ->
@@ -37,6 +49,11 @@ class CategoryListViewModel(
             )
         }
     }
+
+    fun addProduct(category: String, product: String, boolean: Boolean) {
+        _addProduct()
+    }
+    private fun _addProduct()
 
     fun addProduct(category: String, product: String) {
         if (!categoryExists(category)) {
@@ -70,21 +87,12 @@ class CategoryListViewModel(
         }
     }
 
-    fun updateProductChecked(
-        category: String,
-        productIndex: Int,
-        isChecked: Boolean
-    ) {
-        _categoryListState.update { oldState ->
-            oldState.copy(
-                listOfCategories = oldState.listOfCategories.map {
-                    if (it.categoryName == category) {
-                        it.updateProductChecked(productIndex, isChecked)
-                    } else {
-                        it
-                    }
-                }
 
+    fun updateCategoryTextBox(category: String) {
+        _state.update { oldState ->
+            oldState.copy(
+                categoryTextBoxValue = category,
+                isCategoryInvalid = false
             )
         }
     }
@@ -118,21 +126,87 @@ class CategoryListViewModel(
             it.categoryName
         }
     }
+
+    companion object {
+        val factory : ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val application = (this[APPLICATION_KEY] as CategoryListApplication)
+                CategoryListViewModel(application.productRepository)
+            }
+        }
+    }
 }
+ */
 
-class AddScreenViewModel {
-    private val _state: MutableStateFlow<AddScreenProperties> =
-        MutableStateFlow(AddScreenProperties())
-
+class GeneralViewModel(
+    private val productRepository: RepositoryInterface,
+    private val nutritionFactRepository: NutritionFactRepository
+) : ViewModel() {
+    private val _state: MutableStateFlow<AddScreenProperties> = MutableStateFlow(AddScreenProperties())
     // private val _categoryListState: MutableStateFlow<CategoryListProperties> = MutableStateFlow(CategoryListProperties())
-    val state: StateFlow<AddScreenProperties> = _state.asStateFlow()
+    val uiState: StateFlow<AddScreenProperties> = _state.asStateFlow()
+    val dbState: StateFlow<DbState> =
+        productRepository.getAllProducts().map {
+            DbState(it)
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = DbState()
+        )
 
-    fun updateCategoryTextBox(category: String) {
-        _state.update { oldState ->
-            oldState.copy(
-                categoryTextBoxValue = category,
-                isCategoryInvalid = false
-            )
+    companion object {
+        val factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val groceryApplication = (this[APPLICATION_KEY] as GroceryApplication)
+                GeneralViewModel(
+                    groceryApplication.productRepository,
+                    groceryApplication.nutritionFactRepository
+                )
+            }
+        }
+    }
+
+    fun fetchCalories(product: Product) {
+        viewModelScope.launch {
+            try {
+                val calories = nutritionFactRepository.getCalories(product.productName)
+
+                if (calories != null) {
+                    setProductCalories(product, calories)
+                }
+            } catch (e: Exception) {
+                Log.d("groceries", "error: $e")
+            }
+        }
+    }
+
+    fun setProductCalories(product: Product, calories: String) {
+        _updateProduct(product.copy(calories = calories))
+    }
+    fun _updateProduct(product: Product) {
+        viewModelScope.launch {
+            productRepository.updateProduct(product)
+        }
+    }
+
+    fun updateProductChecked(product: Product, isChecked: Boolean) {
+        _updateProductChecked(
+            product.copy(productIsChecked = isChecked)
+        )
+    }
+    private fun _updateProductChecked(product: Product) {
+        Log.d("checkbox", "${product.productIsChecked}")
+        viewModelScope.launch {
+            productRepository.updateProduct(product)
+        }
+    }
+
+    fun addProduct(product: String) {
+        _addProduct(Product(productName = product))
+    }
+    private fun _addProduct(product: Product) {
+        viewModelScope.launch {
+            productRepository.insertProduct(product)
         }
     }
 
@@ -144,6 +218,36 @@ class AddScreenViewModel {
         }
     }
 
+    fun onSubmit() {
+        val textBoxContent = _state.value.productTextBoxValue
+
+        if (textBoxContent.isEmpty()) {
+            markProductAsInvalid()
+            return
+        } else {
+            addProduct(textBoxContent)
+            emptyProductTextBox()
+        }
+    }
+
+    /*fun updateProductChecked(
+           product: String,
+           isChecked: Boolean
+       ) {
+           dbState.update { oldState ->
+               oldState.copy(
+                   listOfCategories = oldState.listOfCategories.map {
+                       if (it.categoryName == category) {
+                           it.updateProductChecked(productIndex, isChecked)
+                       } else {
+                           it
+                       }
+                   }
+
+               )
+           }
+       }*/
+    /*
     fun onSubmit(categoryList: CategoryListViewModel) {
         val localProperty = _state.value
 
@@ -157,22 +261,22 @@ class AddScreenViewModel {
         if (localProperty.productTextBoxValue.isEmpty()) {
             // we reject creation of duplicated category
             if (categoryList.categoryExists(localProperty.categoryTextBoxValue)) {
-                // emptyCategoryTextBox()
-                markCategoryAsInvalid()
+                emptyCategoryTextBox()
+                // markCategoryAsInvalid()
                 return
             }
 
-            categoryList.addCategory(localProperty.categoryTextBoxValue)
-            emptyCategoryTextBox()
+            // categoryList.addCategory(localProperty.categoryTextBoxValue)
+            // emptyCategoryTextBox()
             return
         }
 
         // the actual "add product" logic
         categoryList.addProduct(
-            localProperty.categoryTextBoxValue,
+            // localProperty.categoryTextBoxValue,
             localProperty.productTextBoxValue
         )
-        emptyCategoryTextBox()
+        // emptyCategoryTextBox()
         emptyProductTextBox()
     }
 
@@ -202,6 +306,16 @@ class AddScreenViewModel {
         }
     }
 
+    */
+
+    private fun markProductAsInvalid() {
+        _state.update { oldState ->
+            oldState.copy(
+                isProductValid = false
+            )
+        }
+    }
+
     private fun emptyProductTextBox() {
         _state.update { oldState ->
             oldState.copy(
@@ -213,7 +327,7 @@ class AddScreenViewModel {
 
 class SettingsPreferencesViewModel(
     private val userPreferencesRepository: UserPreferencesRepository
-) : androidx.lifecycle.ViewModel() {
+) : ViewModel() {
     private val _state = MutableStateFlow(SettingPreferences())
     val uiState: StateFlow<SettingPreferences> =
         userPreferencesRepository.centeredTitle.map { centeredTitle ->
@@ -227,8 +341,8 @@ class SettingsPreferencesViewModel(
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val application = (this[APPLICATION_KEY] as Application)
-                SettingsPreferencesViewModel(application.userPreferencesRepository)
+                val settingsApplication = (this[APPLICATION_KEY] as GroceryApplication)
+                SettingsPreferencesViewModel(settingsApplication.userPreferencesRepository)
             }
         }
     }
