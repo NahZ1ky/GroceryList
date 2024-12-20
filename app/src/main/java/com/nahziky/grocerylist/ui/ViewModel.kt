@@ -1,18 +1,36 @@
 package com.nahziky.grocerylist.ui
 
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.nahziky.grocerylist.Application
+import com.nahziky.grocerylist.ui.data.RepositoryInterface
+import com.nahziky.grocerylist.ui.data.UserPreferencesRepository
 import com.nahziky.grocerylist.ui.state.AddScreenProperties
 import com.nahziky.grocerylist.ui.state.CategoryListProperties
 import com.nahziky.grocerylist.ui.state.CategoryProperties
+import com.nahziky.grocerylist.ui.state.SettingPreferences
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class CategoryListViewModel {
-    private val _categoryListState: MutableStateFlow<CategoryListProperties> = MutableStateFlow(CategoryListProperties())
-    val state: StateFlow<CategoryListProperties> = _categoryListState.asStateFlow()
+class CategoryListViewModel(
+    private val productRepository: RepositoryInterface,
 
-    fun setCategoryList(list: List<CategoryProperties>) { // TODO: delete - preview only
+    ) : ViewModel() {
+    private val _categoryListState: MutableStateFlow<CategoryListProperties> =
+        MutableStateFlow(CategoryListProperties())
+    val uiState: StateFlow<CategoryListProperties> = _categoryListState.asStateFlow()
+
+    fun setCategoryList(list: List<CategoryProperties>) {
         _categoryListState.update { oldState ->
             oldState.copy(
                 listOfCategories = list
@@ -103,7 +121,9 @@ class CategoryListViewModel {
 }
 
 class AddScreenViewModel {
-    private val _state: MutableStateFlow<AddScreenProperties> = MutableStateFlow(AddScreenProperties())
+    private val _state: MutableStateFlow<AddScreenProperties> =
+        MutableStateFlow(AddScreenProperties())
+
     // private val _categoryListState: MutableStateFlow<CategoryListProperties> = MutableStateFlow(CategoryListProperties())
     val state: StateFlow<AddScreenProperties> = _state.asStateFlow()
 
@@ -148,12 +168,15 @@ class AddScreenViewModel {
         }
 
         // the actual "add product" logic
-        categoryList.addProduct(localProperty.categoryTextBoxValue, localProperty.productTextBoxValue)
+        categoryList.addProduct(
+            localProperty.categoryTextBoxValue,
+            localProperty.productTextBoxValue
+        )
         emptyCategoryTextBox()
         emptyProductTextBox()
     }
 
-    fun onCategorySelected(category: String, ) {
+    fun onCategorySelected(category: String) {
         _state.update { oldState ->
             oldState.copy(
                 categoryTextBoxValue = category,
@@ -188,6 +211,36 @@ class AddScreenViewModel {
     }
 }
 
+class SettingsPreferencesViewModel(
+    private val userPreferencesRepository: UserPreferencesRepository
+) : androidx.lifecycle.ViewModel() {
+    private val _state = MutableStateFlow(SettingPreferences())
+    val uiState: StateFlow<SettingPreferences> =
+        userPreferencesRepository.centeredTitle.map { centeredTitle ->
+            SettingPreferences(centeredTitle)
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = SettingPreferences()
+        )
 
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val application = (this[APPLICATION_KEY] as Application)
+                SettingsPreferencesViewModel(application.userPreferencesRepository)
+            }
+        }
+    }
 
-
+    fun toggleCenteredTitle(newCenteredTitleState: Boolean) {
+        _state.update { oldState ->
+            oldState.copy(
+                isTitleCentered = newCenteredTitleState
+            )
+        }
+        viewModelScope.launch {
+            userPreferencesRepository.savePreference(newCenteredTitleState)
+        }
+    }
+}

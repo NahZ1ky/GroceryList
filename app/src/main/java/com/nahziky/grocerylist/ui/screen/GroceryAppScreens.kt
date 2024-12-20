@@ -1,5 +1,6 @@
 package com.nahziky.grocerylist.ui.screen
 
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,7 +13,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.FloatingActionButtonElevation
@@ -25,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -33,6 +37,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -41,6 +46,7 @@ import androidx.navigation.compose.rememberNavController
 import com.nahziky.grocerylist.R
 import com.nahziky.grocerylist.ui.AddScreenViewModel
 import com.nahziky.grocerylist.ui.CategoryListViewModel
+import com.nahziky.grocerylist.ui.SettingsPreferencesViewModel
 
 enum class GroceryAppScreens(@StringRes val title: Int) {
     ListScreen(title = R.string.grocery_list),
@@ -50,22 +56,41 @@ enum class GroceryAppScreens(@StringRes val title: Int) {
 
 @Composable
 fun GroceryApp(
-    viewModel: CategoryListViewModel = CategoryListViewModel(),
+    listViewModel: CategoryListViewModel = CategoryListViewModel(),
+    settingsViewModel: SettingsPreferencesViewModel
+    = viewModel(
+        factory = SettingsPreferencesViewModel
+            .Factory
+    ),
     navController: NavHostController = rememberNavController(),
 ) {
+    val settingsUiState = settingsViewModel.uiState.collectAsState()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentScreen = GroceryAppScreens.valueOf(
         backStackEntry?.destination?.route ?: GroceryAppScreens.ListScreen.name
     )
+    val isTitleCentered = settingsUiState.value.isTitleCentered
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            TopBar(
-                currentScreen = currentScreen,
-                canNavigateBack = navController.previousBackStackEntry != null,
-                navigateUp = { navController.navigateUp() }
-            )
+            if (isTitleCentered) {
+                Log.d("mainActivity - setting", "title is centered")
+                SidedTopBar(
+                    currentScreen = currentScreen,
+                    canNavigateBack = navController.previousBackStackEntry != null,
+                    navigateUp = { navController.navigateUp() },
+                    settingViewModel = viewModel(factory = SettingsPreferencesViewModel.Factory)
+                )
+            } else {
+                Log.d("mainActivity - setting", "title is not centered")
+                CenteredTopBar(
+                    currentScreen = currentScreen,
+                    canNavigateBack = navController.previousBackStackEntry != null,
+                    navigateUp = { navController.navigateUp() },
+                    settingViewModel = viewModel(factory = SettingsPreferencesViewModel.Factory)
+                )
+            }
         },
         bottomBar = {
             BottomBar(
@@ -97,13 +122,16 @@ fun GroceryApp(
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(route = GroceryAppScreens.ListScreen.name) {
-                ListScreen(viewModel)
+                ListScreen(listViewModel)
             }
             composable(route = GroceryAppScreens.ArchiveScreen.name) {
-                ArchiveScreen(viewModel)
+                ArchiveScreen(listViewModel)
             }
             composable(route = GroceryAppScreens.AddScreen.name) {
-                AddScreen(addScreenViewModel = AddScreenViewModel(), categoryListViewModel = viewModel)
+                AddScreen(
+                    addScreenViewModel = AddScreenViewModel(),
+                    categoryListViewModel = listViewModel
+                )
             }
         }
     }
@@ -112,11 +140,12 @@ fun GroceryApp(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(
+fun SidedTopBar(
     currentScreen: GroceryAppScreens,
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    settingViewModel: SettingsPreferencesViewModel
 ) {
     TopAppBar(
         title = { Text(stringResource(currentScreen.title)) },
@@ -132,6 +161,60 @@ fun TopBar(
                         contentDescription = "Go Back"
                     )
                 }
+            }
+        },
+        actions = {
+            IconButton(
+                onClick = {
+                    Log.d("settings", "$settingViewModel.uiState.value.isTitleCentered")
+                    settingViewModel.toggleCenteredTitle(!settingViewModel.uiState.value.isTitleCentered)
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Settings,
+                    contentDescription = "toggle centered title"
+                )
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CenteredTopBar(
+    currentScreen: GroceryAppScreens,
+    canNavigateBack: Boolean,
+    navigateUp: () -> Unit,
+    modifier: Modifier = Modifier,
+    settingViewModel: SettingsPreferencesViewModel
+) {
+    CenterAlignedTopAppBar(
+        title = { Text(stringResource(currentScreen.title)) },
+        colors = TopAppBarDefaults.mediumTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        ),
+        modifier = modifier,
+        navigationIcon = {
+            if (canNavigateBack) {
+                IconButton(onClick = navigateUp) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Go Back"
+                    )
+                }
+            }
+        },
+        actions = {
+            IconButton(
+                onClick = {
+                    Log.d("settings", "$settingViewModel.uiState.value.isTitleCentered")
+                    settingViewModel.toggleCenteredTitle(!settingViewModel.uiState.value.isTitleCentered)
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Settings,
+                    contentDescription = "toggle centered title"
+                )
             }
         }
     )
@@ -176,10 +259,6 @@ fun FloatingActionButton(
         content = content
     )
 }
-
-
-
-
 
 @Preview
 @Composable

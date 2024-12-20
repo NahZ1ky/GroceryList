@@ -36,7 +36,7 @@ import com.nahziky.grocerylist.ui.theme.Typography
 fun ListScreen(
     categoryListViewModel: CategoryListViewModel = CategoryListViewModel()
 ) {
-    val uiState by categoryListViewModel.state.collectAsState()
+    val uiState by categoryListViewModel.uiState.collectAsState()
     Log.d("ListScreen", "$uiState")
 
     LazyVerticalGrid(

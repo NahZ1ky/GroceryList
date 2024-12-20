@@ -27,7 +27,7 @@ fun AddScreen(
     categoryListViewModel: CategoryListViewModel
 ) {
     val state by addScreenViewModel.state.collectAsState()
-    val categoryListState by categoryListViewModel.state.collectAsState()
+    val categoryListState by categoryListViewModel.uiState.collectAsState()
     Log.d("AddScreen", "cat list state: $categoryListState")
 
     Column(modifier = Modifier.padding(20.dp)) {

@@ -75,3 +75,7 @@ data class AddScreenProperties(
         // General
     val textFieldSize: Int = 0,
 )
+
+data class SettingPreferences(
+    val isTitleCentered: Boolean = false
+)
